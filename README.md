@@ -59,8 +59,7 @@ npm install
 
 
 # Configure the .env file
-
-# Enter PostgreSQL connection information
+- Enter PostgreSQL connection information
 
 
 ## Usage

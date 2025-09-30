@@ -58,9 +58,9 @@ npm install
 ```
 
 
-# .env dosyasını yapılandırın
-cp .env.example .env
-# PostgreSQL bağlantı bilgilerini girin
+# Configure the .env file
+
+# Enter PostgreSQL connection information
 
 
 ## Usage

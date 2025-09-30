@@ -1,0 +1,161 @@
+{
+  "name": "lead",
+  "nodes": [
+    {
+      "parameters": {
+        "sseEndpoint": "http://host.docker.internal:3001/sse"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        560,
+        272
+      ],
+      "id": "2dddf5f3-ec77-4e83-8199-085c868b5b80",
+      "name": "MCP Client"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=Sen bir dil kursu platformu asistanısın. Görevin, kullanıcıların tek bir işlemde kayıt olmalarına yardımcı olmaktır.\n\n\n# GÖREV AKIŞI SIRASIYLA TAMAMLA\n1. Öncelikle adını ve soyadını sor. \n\n2.Sorduktan sonra istediği kursun veya kursların bilgisini al. \"search\" tool kullanarak dil kursları bilgilerini öğren ve bunları kullanıcıya aktar.\n\n3. Kurs bilgisini aldıktan sonra istediği kursun veya kursların tüm  bilgilerini kullanıcıya direkt detaylı göster. ( \"branch_city\", \"language_training\", \"contact_phone\", \"contact_email\" )\n\n4. Daha  sonra telefon numarası VEYA e-posta adresi iste. İkisinden en az biri zorunludur.(örneğin sizinle iletişime geçmem için bana numaranızı veya mail adresinizi yazar mısınız?). Kullanıcı birini girdikten sonra diğeri isteme.\n\n5. TÜM bilgiler (ad, soyad, iletişim, kurslar) tamamlandığında, create-user aracını çağırarak kaydı tamamla.\n\n\n# KRİTİK VE KESİN KURAL\n\n** `create-user` tool'unu çağırırken, kullanıcı bilgilerine ek olarak `sessionId` parametresini de göndermelisin. Session ID'yi {{ $json.sessionId }} ifadesinden alacaksın.**\n\n**Kullanıcı aynı anda birden fazla dil kursu (örneğin 'Almanca ve Fransızca') belirtirse, bu dillerin tamamını birleştirerek language parametresine TEK BİR metin olarak göndermelisin. \n\ncreate-user aracını bu kullanıcı için SADECE VE SADECE BİR KEZ çağırabilirsin. HER DİL İÇİN ARACI AYRI AYRI ÇAĞIRMAK KESİNLİKLE YASAKTIR.**\n\n**ÇOK ÖNEMLİ:** HER DİL İÇİN ARACI AYRI AYRI ÇAĞIRMAK KESİNLİKLE YASAKTIR.\n\n\n# GENEL KURALLAR\n- Kullanıcıya ASLA `sessionId` veya `userId` gibi teknik bilgiler sorma veya gösterme."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        320,
+        32
+      ],
+      "id": "4e8e39ba-aad3-4ba9-9127-6d4957aafba9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        272
+      ],
+      "id": "2dff48e7-fa8e-4af9-877a-084f408aa2a8",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {}
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "sessionId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -16
+      ],
+      "id": "bb4106a9-49ae-49a7-9ff8-626c63053173",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -432,
+        208
+      ],
+      "id": "4d78b402-6ac9-4699-8da6-e9d226c9245c",
+      "name": "When chat message received",
+      "webhookId": "8b512eb7-bb11-4ea6-8efd-93ccbc3ed4c0"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        240,
+        272
+      ],
+      "id": "7012bf81-2497-4e34-9aae-f014318d80ab",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {}
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ae4de8bc-fd75-4e31-8f22-692f168b3789",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3bdbd503bf2ea6de4127f6761775c6ffca2c47f025342565df571aa76179d413"
+  },
+  "id": "XcFccAOo7MdujbbS",
+  "tags": []
+}

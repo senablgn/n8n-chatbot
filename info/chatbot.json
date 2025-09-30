@@ -1,0 +1,225 @@
+{
+  "name": "chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        144
+      ],
+      "id": "84451552-d214-474d-a121-2ecdd34ff6cd",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {}
+      }
+    },
+    {
+      "parameters": {
+        "description": "=Amaç: Bu araç potansiyel müşteri bilgilerini toplar ve satış veya destek ekibine takip için iletir. Kaydolmak, bir kurs talep etmek veya iletişim kurulmasını isteyen ilgilenen kullanıcıları tanımlamada yardımcı olur. \n\nKullanım: Kullanıcının mesajında isim, telefon numarası, e-posta, kurs bilgisi veya diğer iletişim bilgileri gibi ilgili veriler bulunduğunda bu aracı devreye alın.",
+        "workflowId": {
+          "__rl": true,
+          "value": "fVxPj6iyhIYLlvaP",
+          "mode": "list",
+          "cachedResultName": "jot-lead"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "query": "={{ $json.chatInput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        144
+      ],
+      "id": "9a4f2446-a99c-4287-ba9f-5159c0fce96a",
+      "name": "jot-lead"
+    },
+    {
+      "parameters": {
+        "description": "=Amaç: FAQ aracı, kullanıcıların dil öğrenme platformuyla ilgili sorularını otomatik olarak yanıtlamak için tasarlanmıştır. Bu araç, özellikler, kullanım, erişim, hesap yönetimi ve daha fazlası hakkında doğru ve tutarlı bilgi sağlamak amacıyla doğrulanmış bir FAQ veritabanından yanıtları alır. \n\nKullanım: Kullanıcı platformun nasıl çalıştığı, yetenekleri veya nasıl kullanılacağı hakkında herhangi bir soru sorduğunda bu aracı devreye sokun. Soru, FAQ veritabanındaki en alakalı yanıtla eşleştirilir ve kullanıcıya iletilir.",
+        "workflowId": {
+          "__rl": true,
+          "value": "8PbPWaOAOZMjwJax",
+          "mode": "list",
+          "cachedResultName": "jot-info"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        144
+      ],
+      "id": "89373698-5a37-48e5-a85b-e27248dce375",
+      "name": "jot-info"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Sen bir dil öğrenme platformunda görev yapan Türk bir müşteri destek asistanısın. Tek görevin, konuşmanın akışını yönlendirmek ve uygun \"tool\" tetiklemektir.\n\nDavranış Kuralları:\n\nSadece yabancı dil öğrenimi ve platformla ilgili sorularla ilgilen. Bu alan dışındaki hiçbir konuşmaya cevap verme ya da dahil olma.\n\nKonuşmaya sıcak, profesyonel bir selamlamayla başla ve platformun dil öğrenmeye nasıl yardımcı olduğunu kısaca tanıt.\n\nKullanıcı platform hakkında bir soru sorarsa (örneğin özellikler, kullanım, erişim), otomatik olarak yanıtlamak için \"jot-info\" çağır.\n\nSadece FAQ veritabanında yer alan doğrulanmış bilgileri kullanarak cevap ver.\n\nEğer uygun bir FAQ cevabı bulunamazsa, bunu kullanıcıya kibarca bildir ve destek ekibiyle iletişime geçmesini öner.\n\nEğer konuşmada kullanıcının adı, almak istediği kurs veya telefon numarası gibi bilgiler yer alıyorsa, bu bilgileri \"jot-lead\"’a gönder.\n\nEğer kullanıcı şehirlerde bulunan kurslar hakkında bilgi almak isterse   'jot-info' tool a gönder."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -128
+      ],
+      "id": "e16432e4-133c-417e-b2a0-fccd5a660c4d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        -128
+      ],
+      "id": "0e8aa294-97a6-4be2-a662-6909505f4e01",
+      "name": "When chat message received",
+      "webhookId": "8939e862-76f5-414c-a909-737ec62848eb"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 30
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        144
+      ],
+      "id": "39ccc4d0-b33a-4bd3-b17d-3b050fcc5459",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {}
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "jot-lead": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "jot-info": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "39f64948-4a61-4aaa-9078-f8de47cc9c61",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3bdbd503bf2ea6de4127f6761775c6ffca2c47f025342565df571aa76179d413"
+  },
+  "id": "E6ZQSRp0sTuzgaoC",
+  "tags": []
+}
